@@ -23,15 +23,31 @@
 # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
 
+import json
 import notmuch
-import time
 import os
+import sys
 
 db = notmuch.Database()
 db.__init__()
 
-messageids = []
 importantaddresses = ['skarmeta@um.es', 'pedromj@um.es', 'edumart@um.es', 'emtg@um.es', 'angeles.ros@gmail.com', 'angelesrosg@gmail.com']
+
+messageids = []
+fd = None
+try:
+    fd = open("/tmp/notmuch-notifier.db", "r+")
+    messageids = json.load(fd)
+    fd.close()
+except FileNotFoundError:
+    fd = open("/tmp/notmuch-notifier.db", "w")
+    messageids = []
+except:
+    print("Unexpected error")
+    print(sys.exc_info()[0])
+    sys.exit(1)
+
+print(messageids)
 
 query = db.create_query('tag:inbox and tag:unread and date:yesterday..now')
 messages = list(query.search_messages())
@@ -46,8 +62,9 @@ for m in messages:
         if not important:
             os.system('notify-send -t 10000 -u low "notmuch" "' + m.get_header('from') + ' ' + m.get_header('subject')  + '"')
             #os.system('twmnc -t notmuch -c "' + m.get_header('from') + ' ' + m.get_header('subject')  + '" -d 3000 --fg blue --bg gray')
-    messageids.append(m.get_message_id())
+        messageids.append(m.get_message_id())
 
+fd = open("/tmp/notmuch-notifier.db", "w")
+json.dump(messageids, fd)
 
-# TODO: Save message list to database and recover at the beginning
-
+fd.close()
