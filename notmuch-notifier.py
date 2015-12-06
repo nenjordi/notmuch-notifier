@@ -23,6 +23,7 @@
 # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
 
+import configparser
 import json
 import notmuch
 import os
@@ -31,16 +32,19 @@ import sys
 db = notmuch.Database()
 db.__init__()
 
-importantaddresses = ['skarmeta@um.es', 'pedromj@um.es', 'edumart@um.es', 'emtg@um.es', 'angeles.ros@gmail.com', 'angelesrosg@gmail.com']
+# Read Config
+cp = configparser.ConfigParser()
+cp.read(str(os.environ['HOME']) + '/.config/notmuch-notifier.conf')
+dbfile = str(cp['file']['db'])
+addresses = str(cp['notifications']['highlight']).replace(' ', '').split(',')
 
 messageids = []
 fd = None
 try:
-    fd = open("/tmp/notmuch-notifier.db", "r+")
+    fd = open(dbfile, "r+")
     messageids = json.load(fd)
     fd.close()
 except FileNotFoundError:
-    fd = open("/tmp/notmuch-notifier.db", "w")
     messageids = []
 except:
     print("Unexpected error")
@@ -48,22 +52,22 @@ except:
     sys.exit(1)
 
 
-query = db.create_query('tag:inbox and tag:unread and date:yesterday..now')
+query = db.create_query(cp['notmuch']['filter'])
 messages = list(query.search_messages())
 for m in messages:
     if not messageids.__contains__(m.get_message_id()):
         important = False
-        for addr in importantaddresses:
+        for addr in addresses:
             if m.get_header('from').find(addr) != -1:
-                os.system('notify-send -t 30000 -u critical "notmuch" "' + m.get_header('from') + ' ' + m.get_header('subject')  + '"')
+                os.system('notify-send -t ' + str(cp['notifications']['highlight_time']) + ' -u critical "notmuch" "' + m.get_header('from') + ' ' + m.get_header('subject')  + '"')
                 #os.system('twmnc -t notmuch -c "' + m.get_header('from') + ' ' + m.get_header('subject')  + '" -d 10000 --fg red --bg white')
                 important = True
         if not important:
-            os.system('notify-send -t 10000 -u low "notmuch" "' + m.get_header('from') + ' ' + m.get_header('subject')  + '"')
+            os.system('notify-send -t ' + str(cp['notifications']['time']) + ' -u low "notmuch" "' + m.get_header('from') + ' ' + m.get_header('subject')  + '"')
             #os.system('twmnc -t notmuch -c "' + m.get_header('from') + ' ' + m.get_header('subject')  + '" -d 3000 --fg blue --bg gray')
         messageids.append(m.get_message_id())
 
-fd = open("/tmp/notmuch-notifier.db", "w")
+fd = open(dbfile, "w")
 json.dump(messageids, fd)
 
 fd.close()
