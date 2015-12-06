@@ -47,7 +47,6 @@ except:
     print(sys.exc_info()[0])
     sys.exit(1)
 
-print(messageids)
 
 query = db.create_query('tag:inbox and tag:unread and date:yesterday..now')
 messages = list(query.search_messages())
