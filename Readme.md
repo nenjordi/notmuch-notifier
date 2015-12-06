@@ -3,7 +3,11 @@ Notification python script to receive notifications via libnotify from notmuch s
 
 The idea is to have a script to be called periodically (probably with cron) that checks for a notmuch search and notifies just once messages listed. In addition some highlighting options are added in config file.
 
-_notmuch-notifier.conf_
+## Dependencies
+* notmuch
+* python-notify2
+
+## notmuch-notifier.conf
 ```
 [file]
 db = /tmp/notmuch-notifier.db
