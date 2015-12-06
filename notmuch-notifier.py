@@ -27,6 +27,7 @@ import configparser
 import json
 import notmuch
 import os
+import notify2
 import sys
 
 db = notmuch.Database()
@@ -37,6 +38,8 @@ cp = configparser.ConfigParser()
 cp.read(str(os.environ['HOME']) + '/.config/notmuch-notifier.conf')
 dbfile = str(cp['file']['db'])
 addresses = str(cp['notifications']['highlight']).replace(' ', '').split(',')
+filter = cp['notmuch']['filter']
+notify2.init(cp['notifications']['app'])
 
 messageids = []
 fd = None
@@ -52,20 +55,22 @@ except:
     sys.exit(1)
 
 
-query = db.create_query(cp['notmuch']['filter'])
+query = db.create_query(filter)
 messages = list(query.search_messages())
 for m in messages:
     if not messageids.__contains__(m.get_message_id()):
-        important = False
-        for addr in addresses:
-            if m.get_header('from').find(addr) != -1:
-                os.system('notify-send -t ' + str(cp['notifications']['highlight_time']) + ' -u critical "notmuch" "' + m.get_header('from') + ' ' + m.get_header('subject')  + '"')
-                #os.system('twmnc -t notmuch -c "' + m.get_header('from') + ' ' + m.get_header('subject')  + '" -d 10000 --fg red --bg white')
-                important = True
-        if not important:
-            os.system('notify-send -t ' + str(cp['notifications']['time']) + ' -u low "notmuch" "' + m.get_header('from') + ' ' + m.get_header('subject')  + '"')
-            #os.system('twmnc -t notmuch -c "' + m.get_header('from') + ' ' + m.get_header('subject')  + '" -d 3000 --fg blue --bg gray')
+        n = None
+        n = notify2.Notification(str(m.get_header('subject')) + ' FROM ' + str(m.get_header('from')), str(m.get_header('body')).ljust(int(cp['notifications']['summary_length'])))
+
+        if any(address in  m.get_header('from') for address in addresses):
+            n.set_timeout(int(cp['notifications']['highlight_time']))
+            n.set_urgency(notify2.URGENCY_CRITICAL)
+        else:
+            n.set_timeout(int(cp['notifications']['time']))
+            n.set_urgency(notify2.URGENCY_NORMAL)
+
         messageids.append(m.get_message_id())
+        n.show()
 
 fd = open(dbfile, "w")
 json.dump(messageids, fd)
