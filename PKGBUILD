@@ -1,6 +1,6 @@
 # Maintainer: Jordi <nenjordi@JORDI-LENOVO>
 pkgname=notmuch-notifier
-pkgver=0.1
+pkgver=0.2
 pkgrel=1
 epoch=
 pkgdesc="Python script to get libnotify notifications fed from a notmuch filter"
