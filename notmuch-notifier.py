@@ -39,7 +39,7 @@ cp.read(str(os.environ['HOME']) + '/.config/notmuch-notifier.conf')
 dbfile = str(cp['file']['db'])
 addresses = str(cp['notifications']['highlight']).replace(' ', '').split(',')
 filter = cp['notmuch']['filter']
-os.environ["DISPLAY"] = cp['notifications']['display']
+os.putenv("DISPLAY", cp['notifications']['display'])
 notify2.init(cp['notifications']['app'])
 
 messageids = []
