@@ -32,3 +32,11 @@ display = :0
 * app is the app name to send to libnotify2
 * summary_length is the ammount of bytes of the body to be shown in the notification
 * display is the environment variable DISPLAY value to be set
+* dbusfd is the dbus file descriptor to connect to. Usually obtained with something like /run/user/$(id -u foobar)/bus where foobar is your username.
+
+## Service
+Edit your user configuration with 'crontab -e' and add:
+```
+*/1 * * * *     python /usr/local/bin/notmuch-notifier.py
+```
+
