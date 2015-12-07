@@ -61,7 +61,7 @@ messages = list(query.search_messages())
 for m in messages:
     if not messageids.__contains__(m.get_message_id()):
         n = None
-        n = notify2.Notification(str(m.get_header('subject')) + ' FROM ' + str(m.get_header('from')), str(m.get_header('body')).ljust(int(cp['notifications']['summary_length'])))
+        n = notify2.Notification('email from ' + str(m.get_header('from')), str(m.get_header('subject')).ljust(int(cp['notifications']['summary_length'])))
 
         if any(address in  m.get_header('from') for address in addresses):
             n.set_timeout(int(cp['notifications']['highlight_time']))
