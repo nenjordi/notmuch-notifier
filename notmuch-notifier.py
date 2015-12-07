@@ -40,6 +40,7 @@ dbfile = str(cp['file']['db'])
 addresses = str(cp['notifications']['highlight']).replace(' ', '').split(',')
 filter = cp['notmuch']['filter']
 os.putenv("DISPLAY", cp['notifications']['display'])
+os.putenv("DBUS_SESSION_BUS_ADDRESS", cp['notifications']['dbusfd'])
 notify2.init(cp['notifications']['app'])
 
 messageids = []
