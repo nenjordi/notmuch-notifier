@@ -21,6 +21,7 @@ highlight_time = 30000
 time = 10000
 app = notmuch
 summary_length = 200
+display = :0
 ```
 
 * db is the file where the message-ids already shown will be stored
@@ -30,3 +31,4 @@ summary_length = 200
 * time is the default time to show nofitications
 * app is the app name to send to libnotify2
 * summary_length is the ammount of bytes of the body to be shown in the notification
+* display is the environment variable DISPLAY value to be set
