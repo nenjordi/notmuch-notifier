@@ -1,5 +1,4 @@
 post_install() {
                echo "Sample configuration file is located in /usr/local/share/doc/notmuch-notifier/notmuch-notifier.conf and should be copied (and personalised acordingly) as $HOME/.config/notmuch-notifier.conf"
-               echo "Also consider adding a periodic service call in cron. --> */1 * * * *     python /usr/local/bin/notmuch-notifier.py
-
+               echo "Also consider adding a periodic service call in cron. --> */1 * * * *     python /usr/local/bin/notmuch-notifier.py"
 }
